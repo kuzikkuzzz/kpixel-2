@@ -1,7 +1,10 @@
 /*
  * move 3d canvas chunks from one redis instance to another
  */
-import { createClient, commandOptions } from 'redis';
+
+const redis = require('redis');
+const createClient = redis.createClient;
+const commandOptions = redis.commandOptions;
 
 const urlc = "redis://localhost:6380";
 const redisc = createClient({ url: urlc });

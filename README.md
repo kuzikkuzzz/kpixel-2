@@ -4,7 +4,7 @@ Note:
 
 - EVERY SCRIPT THAT USES REDIS IS JUST AS REFERENCE (node-redis and keys update and change over time and i am not keeping those up-to-date) 
 - we use blender 2.8
-- js script are executed with `npm run babel-node utils/[scriptname].js`
+- js script are executed `npm run babel-node utils/[scriptname].js` unless stated otherwise
 
 ## sphere-protection.blend
 This blend file includes the sphere we use to display the globe with two UV maps, one for protection like it's used on many globe textures of the earth like [here](http://blog.mastermaps.com/2013/09/creating-webgl-earth-with-threejs.html) and [here](http://www.shadedrelief.com/natural3/pages/textures.html) and one for our mercator projection that is the same as on OpenStreetMap, with additional changes for poles.
@@ -23,8 +23,8 @@ Used to generate tiles based on a uv texture that can then be drawn on the canva
 ## country-locations
 Generates a json list of country codes and their coordinates on the canvas based on lat and lon
 
-## redisMoveCanvas.js
-Script to move canvas chunks, i.e. for resizing canvas
+## redisMoveCanvas.js redisMoveCanvasBySize.js
+Script to move canvas chunks, i.e. for resizing canvas. Executed with `node [scriptname].js`.
 
 ## areaDownload.py
 downloads an area of the canvas into a png file.
