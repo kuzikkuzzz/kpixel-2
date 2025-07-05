@@ -14,7 +14,7 @@ import { getChunkOfPixel } from '../../src/core/utils';
 
 const CANVAS_SIZE = 256 * 256;
 const TILE_SIZE = 256;
-const TILEFOLDER = './utils/ocean-tiles/ocean';
+const TILEFOLDER = './ocean-tiles/ocean';
 const IMG_TILE_SIZE = 2048;
 // change redis URL here if you need a different one
 const redis = createClient({ url: "redis://localhost:6379" });

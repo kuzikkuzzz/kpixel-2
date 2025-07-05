@@ -8,7 +8,7 @@ import aiohttp
 
 USER_AGENT = "ppfun historyDownload 1.0 " + ' '.join(sys.argv[1:])
 PPFUN_URL = "https://pixelplanet.fun"
-PPFUN_STORAGE_URL = "https://storage.pixelplanet.fun"
+PPFUN_STORAGE_URL = "https://storage.gs-os.com"
 
 # how many frames to skip
 #  1 means none
