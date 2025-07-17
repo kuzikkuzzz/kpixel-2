@@ -3,26 +3,32 @@
  * its used to set the land area on the planet.
  */
 
-
-import { createClient, commandOptions } from 'redis';
-import sharp from 'sharp';
-import fs from 'fs';
-import canvases from '../../src/canvases.json';
-import { getChunkOfPixel } from '../../src/core/utils';
+const redis = require('redis');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
 
 // -----------------------------------------------------------------------------
 
+const CANVAS_ID = 0;
 const CANVAS_SIZE = 256 * 256;
 const TILE_SIZE = 256;
 const TILEFOLDER = './ocean-tiles/ocean';
 const IMG_TILE_SIZE = 2048;
 // change redis URL here if you need a different one
-const redis = createClient({ url: "redis://localhost:6379" });
+const redisClient = redis.createClient({ url: "redis://localhost:6379" });
 
 // -----------------------------------------------------------------------------
 
 const CANVAS_MIN_XY = -(CANVAS_SIZE / 2);
 const CANVAS_MAX_XY = (CANVAS_SIZE / 2) - 1;
+
+export function getChunkOfPixel(canvasSize, x, y, z = null,) {
+  const width = (z == null) ? y : z;
+  const cx = Math.floor((x + (canvasSize / 2)) / TILE_SIZE);
+  const cy = Math.floor((width + (canvasSize / 2)) / TILE_SIZE);
+  return [cx, cy];
+}
 
 /**
  * get Chunk from redis, pad if neccessary
@@ -34,8 +40,8 @@ async function getChunk(
   padding = null,
 ) {
   const key = `ch:${canvasId}:${i}:${j}`;
-  let chunk = await redis.get(
-    commandOptions({ returnBuffers: true }),
+  let chunk = await redisClient.get(
+    redis.commandOptions({ returnBuffers: true }),
     key,
   );
   if (padding > 0 && chunk && chunk.length < padding) {
@@ -50,7 +56,6 @@ async function getChunk(
  * for each black pixel
  */
 async function imagemask2Canvas(
-  canvasId,
   x,
   y,
   data,
@@ -62,32 +67,29 @@ async function imagemask2Canvas(
     `Loading mask with size ${width} / ${height} to ${x} / ${y} to the canvas`,
   );
   const expectedLength = TILE_SIZE ** 2;
-  const canvas = canvases[canvasId];
-  const canvasMinXY = -(canvas.size / 2);
-
   const imageData = new Uint8Array(data.buffer);
 
-  const [ucx, ucy] = getChunkOfPixel(canvas.size, x, y);
-  const [lcx, lcy] = getChunkOfPixel(canvas.size, x + width, y + height);
+  const [ucx, ucy] = getChunkOfPixel(CANVAS_SIZE, x, y);
+  const [lcx, lcy] = getChunkOfPixel(CANVAS_SIZE, x + width, y + height);
 
   console.info(`Loading to chunks from ${ucx} / ${ucy} to ${lcx} / ${lcy} ...`);
   for (let cx = ucx; cx <= lcx; cx += 1) {
     for (let cy = ucy; cy <= lcy; cy += 1) {
       let chunk = null;
       try {
-        chunk = await getChunk(canvasId, cx, cy, expectedLength);
+        chunk = await getChunk(CANVAS_ID, cx, cy, expectedLength);
       } catch (error) {
         console.error(
           // eslint-disable-next-line max-len
-          `Could not load chunk ch:${canvasId}:${cx}:${cy} for imagemask-load: ${error.message}`,
+          `Could not load chunk ch:${CANVAS_ID}:${cx}:${cy} for imagemask-load: ${error.message}`,
         );
       }
       chunk = (chunk && chunk.length)
         ? new Uint8Array(chunk)
         : new Uint8Array(TILE_SIZE * TILE_SIZE);
       // offset of chunk in image
-      const cOffX = cx * TILE_SIZE + canvasMinXY - x;
-      const cOffY = cy * TILE_SIZE + canvasMinXY - y;
+      const cOffX = cx * TILE_SIZE + CANVAS_MIN_XY - x;
+      const cOffY = cy * TILE_SIZE + CANVAS_MIN_XY - y;
       let cOff = 0;
       let pxlCnt = 0;
       for (let py = 0; py < TILE_SIZE; py += 1) {
@@ -108,8 +110,8 @@ async function imagemask2Canvas(
         }
       }
       if (pxlCnt) {
-        const key = `ch:${canvasId}:${cx}:${cy}`;
-        const ret = await redis.set(key, Buffer.from(chunk.buffer));
+        const key = `ch:${CANVAS_ID}:${cx}:${cy}`;
+        const ret = await redisClient.set(key, Buffer.from(chunk.buffer));
         if (ret) {
           console.info(`Loaded ${pxlCnt} pixels into chunk ${cx}, ${cy}.`);
         }
@@ -124,12 +126,12 @@ async function imagemask2Canvas(
  * Load black/white tiles from TILEFOLDER onto canvas
  */
 async function applyMasks() {
-  await redis.connect();
+  await redisClient.connect();
   try {
     for (let ty = 0; ty < CANVAS_SIZE / IMG_TILE_SIZE; ty += 1) {
       for (let tx = 0; tx < CANVAS_SIZE / IMG_TILE_SIZE; tx += 1) {
         const [ x, y ] = [tx, ty].map(z => z * IMG_TILE_SIZE + CANVAS_MIN_XY);
-        const filename = `${TILEFOLDER}/${tx}/${ty}.png`;
+        const filename = path.resolve(__dirname, TILEFOLDER, String(tx), `${ty}.png`);
         console.log(`Checking tile ${filename}`);
         if (!fs.existsSync(filename)) {
             console.log(`Not Found ${filename}`);
@@ -137,7 +139,7 @@ async function applyMasks() {
         }
         let tile = await sharp(filename).removeAlpha().raw().toBuffer();
         // eslint-disable-next-line max-len
-        await imagemask2Canvas(0, x, y, tile, IMG_TILE_SIZE, IMG_TILE_SIZE, () => {
+        await imagemask2Canvas(x, y, tile, IMG_TILE_SIZE, IMG_TILE_SIZE, () => {
           return 1; //set color to index 1 -> land
         });
         tile = null;
@@ -146,11 +148,11 @@ async function applyMasks() {
         global.gc();
       }
     }
-    await redis.quit();
+    await redisClient.quit();
     process.exit(0);
   } catch (err) {
     console.error(err);
-    await redis.quit();
+    await redisClient.quit();
     process.exit(1);
   }
 }
