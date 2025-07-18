@@ -17,8 +17,8 @@ PPFUN_STORAGE_URL = "https://storage.gs-os.com"
 #  [...]
 frameskip = 1
 
-async def fetchMe():
-    url = f"{PPFUN_URL}/api/me"
+async def fetchCanvases():
+    url = f"{PPFUN_URL}/api/canvases"
     headers = {
       'User-Agent': USER_AGENT
     }
@@ -161,7 +161,7 @@ async def get_area(canvas_id, canvas, x, y, w, h, start_date, end_date):
 
 
 async def main():
-    apime = await fetchMe()
+    canvasData = await fetchCanvases()
 
     if len(sys.argv) != 5 and len(sys.argv) != 6:
         print("Download history of an area of pixelplanet - useful for timelapses")
@@ -172,7 +172,7 @@ async def main():
         print("→user R key on pixelplanet to copy coordinates)")
         print("→images will be saved into timelapse folder)")
         print("canvasID: ", end='')
-        for canvas_id, canvas in apime['canvases'].items():
+        for canvas_id, canvas in canvasData['canvases'].items():
             if 'v' in canvas and canvas['v']:
                 continue
             print(f"{canvas_id} = {canvas['title']}", end=', ')
@@ -186,11 +186,11 @@ async def main():
 
     canvas_id = sys.argv[1]
 
-    if canvas_id not in apime['canvases']:
+    if canvas_id not in canvasData['canvases']:
         print("Invalid canvas selected")
         return
 
-    canvas = apime['canvases'][canvas_id]
+    canvas = canvasData['canvases'][canvas_id]
 
     if 'v' in canvas and canvas['v']:
         print("Can\'t get area for 3D canvas")
