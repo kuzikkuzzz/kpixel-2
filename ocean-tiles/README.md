@@ -37,6 +37,6 @@ for file in ./ocean_tiles*.png; do NUM=`echo $file | sed -e 's/.*ocean_tiles//' 
 - Draws the 2048x2048 tiles from the ./ocean directory on the canvas. Uses localhost:6379 as redis url, if you need a different one, edit it in the drawOcean.js file.
 
 ```
-# THIS COMMAND DOESN'T CURRENTLY WORK, CAUSE IT GOT RIPPED OUT OF THE MAIN REPOSITORY AND NOBODY CARES ABOUT UPDATING IT, BUT YOU CAN USE IT AS REFERENCE
-npm run babel-node ./utils/ocean-tiles/drawOcean.js
+cd ../..
+node ./ocean-tiles/drawOcean.js
 ```
