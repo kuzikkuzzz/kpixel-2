@@ -3,9 +3,9 @@ These files are used to create a Earth map canvas.
 
 ### Before you get started
 You have to change your canvas options on ppf instance to make the correct colors and size on the canvas  
-<details>
-<summary>Example canvas settings</summary>
-<pre>"0": {
+#### Example canvas settings:
+```json
+"0": {
     "ident":"d",
     "colors": [
       [ 202, 227, 255 ],
@@ -48,8 +48,7 @@ You have to change your canvas options on ppf instance to make the correct color
     "cds": 60000,
     "ranked": true
   },
-</pre>
-</details>
+```
 
 # Creating a map
 There are two ways Earth map can be done
