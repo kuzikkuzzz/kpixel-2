@@ -2,7 +2,52 @@
 These files are used to create a Earth map canvas.
 
 ### Before you get started
-You have to change your canvas options on ppf instance to make the correct colors on the canvas
+You have to change your canvas options on ppf instance to make the correct colors and size on the canvas  
+<details>
+<summary>Example canvas settings</summary>
+<pre>"0": {
+    "ident":"d",
+    "colors": [
+      [ 202, 227, 255 ],
+      [ 255, 255, 255 ],
+      [ 255, 255, 255 ],
+      [ 228, 228, 228 ],
+      [ 196, 196, 196 ],
+      [ 136, 136, 136 ],
+      [ 78, 78, 78 ],
+      [ 0, 0, 0 ],
+      [ 244, 179, 174 ],
+      [ 255, 167, 209 ],
+      [ 255, 84, 178 ],
+      [ 255, 101, 101 ],
+      [ 229, 0, 0 ],
+      [ 154, 0, 0 ],
+      [ 254, 164, 96 ],
+      [ 229, 149, 0 ],
+      [ 160, 106, 66 ],
+      [ 96, 64, 40 ],
+      [ 245, 223, 176 ],
+      [ 255, 248, 137 ],
+      [ 229, 217, 0 ],
+      [ 148, 224, 68 ],
+      [ 2, 190, 1 ],
+      [ 104, 131, 56 ],
+      [ 0, 101, 19 ],
+      [ 202, 227, 255 ],
+      [ 0, 211, 221 ],
+      [ 0, 131, 199 ],
+      [ 0, 0, 234 ],
+      [ 25, 25, 115 ],
+      [ 207, 110, 228 ],
+      [ 130, 0, 128 ]
+    ],
+    "size": 65536,
+    "cli": 2,
+    "bcd": 4000,
+    "cds": 7000
+  },
+</pre>
+</details>
 
 # Creating a map
 There are two ways Earth map can be done
