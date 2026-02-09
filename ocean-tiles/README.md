@@ -44,7 +44,9 @@ You have to change your canvas options on ppf instance to make the correct color
     "size": 65536,
     "cli": 2,
     "bcd": 4000,
-    "cds": 7000
+    "pcd": 7000,
+    "cds": 60000,
+    "ranked": true
   },
 </pre>
 </details>
