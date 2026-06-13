@@ -13,7 +13,7 @@ const path = require('path');
 const CANVAS_ID = 0;
 const CANVAS_SIZE = 256 * 256;
 const TILE_SIZE = 256;
-const TILEFOLDER = './ocean-tiles/ocean';
+const TILEFOLDER = './ocean';
 const IMG_TILE_SIZE = 2048;
 // change redis URL here if you need a different one
 const redisClient = redis.createClient({ url: "redis://localhost:6379" });
@@ -23,7 +23,7 @@ const redisClient = redis.createClient({ url: "redis://localhost:6379" });
 const CANVAS_MIN_XY = -(CANVAS_SIZE / 2);
 const CANVAS_MAX_XY = (CANVAS_SIZE / 2) - 1;
 
-export function getChunkOfPixel(canvasSize, x, y, z = null,) {
+function getChunkOfPixel(canvasSize, x, y, z = null,) {
   const width = (z == null) ? y : z;
   const cx = Math.floor((x + (canvasSize / 2)) / TILE_SIZE);
   const cy = Math.floor((width + (canvasSize / 2)) / TILE_SIZE);
@@ -33,17 +33,12 @@ export function getChunkOfPixel(canvasSize, x, y, z = null,) {
 /**
  * get Chunk from redis, pad if neccessary
  */
-async function getChunk(
-  canvasId,
-  i,
-  j,
-  padding = null,
-) {
+async function getChunk(canvasId, i, j, padding = null) {
   const key = `ch:${canvasId}:${i}:${j}`;
-  let chunk = await redisClient.get(
-    redis.commandOptions({ returnBuffers: true }),
-    key,
-  );
+  let chunk = await redisClient.get(key);
+  if (chunk && !(chunk instanceof Buffer)) {
+    chunk = Buffer.from(chunk);
+  }
   if (padding > 0 && chunk && chunk.length < padding) {
     const pad = Buffer.alloc(padding - chunk.length);
     chunk = Buffer.concat([chunk, pad]);
